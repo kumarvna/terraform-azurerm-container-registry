@@ -36,6 +36,34 @@ module "container-registry" {
     }
   ]
 
+  #  Add `Microsoft.ContainerRegistry` to subnet's ServiceEndpoints collection before adding specific subnets
+  network_rule_set = {
+    default_action = "Deny"
+    ip_rule = [
+      {
+        ip_range = "49.204.225.49/32"
+      },
+    ]
+    virtual_network = [
+      {
+        subnet_id = "/subscriptions/1e3f0eeb-2235-44cd-b3a3-dcded0861d06/resourceGroups/rg-shared-westeurope-01/providers/Microsoft.Network/virtualNetworks/vnet-shared-hub-westeurope-001/subnets/snet-appgateway"
+      },
+      {
+        subnet_id = "/subscriptions/1e3f0eeb-2235-44cd-b3a3-dcded0861d06/resourceGroups/rg-shared-westeurope-01/providers/Microsoft.Network/virtualNetworks/vnet-shared-hub-westeurope-001/subnets/snet-management"
+      }
+    ]
+  }
+
+  # Set a retention policy with care--deleted image data is UNRECOVERABLE.
+  # A retention policy for untagged manifests is currently a preview feature of Premium container registries
+  retention_policy = {
+    days    = 10
+    enabled = true
+  }
+
+  # Content trust is a feature of the Premium service tier of Azure Container Registry.
+  enable_content_trust = true
+
   # Adding TAG's to your Azure resources 
   tags = {
     ProjectName  = "demo-internal"

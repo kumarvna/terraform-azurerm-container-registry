@@ -39,12 +39,40 @@ variable "network_rule_set" { # change this to match actual objects
   description = "Manage network rules for Azure Container Registries"
   type = object({
     default_action = optional(string)
-    ip_rule = list(object({
+    ip_rule = optional(list(object({
       ip_range = string
-    }))
-    virtual_network = list(object({
+    })))
+    virtual_network = optional(list(object({
       subnet_id = string
-    }))
+    })))
+  })
+  default = null
+}
+
+variable "retention_policy" {
+  description = "Set a retention policy for untagged manifests"
+  type = object({
+    days    = optional(number)
+    enabled = optional(bool)
+  })
+  default = null
+}
+
+variable "enable_content_trust" {
+  description = "Boolean value to enable or disable Content trust in Azure Container Registry"
+  default     = false
+}
+
+variable "identity_ids" {
+  description = "Specifies a list of user managed identity ids to be assigned. This is required when `type` is set to `UserAssigned` or `SystemAssigned, UserAssigned`"
+  default     = null
+}
+
+variable "encryption" {
+  description = "Encrypt registry using a customer-managed key"
+  type = object({
+    key_vault_key_id   = string
+    identity_client_id = string
   })
   default = null
 }

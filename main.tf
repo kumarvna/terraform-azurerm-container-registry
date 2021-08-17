@@ -62,12 +62,39 @@ resource "azurerm_container_registry" "main" {
         for_each = network_rule_set.value.virtual_network
         content {
           action    = "Allow"
-          subnet_id = network_rule_set.value.subnet_id
+          subnet_id = virtual_network.value.subnet_id
         }
       }
     }
   }
 
-}
+  dynamic "retention_policy" {
+    for_each = var.retention_policy != null ? [var.retention_policy] : []
+    content {
+      days    = lookup(retention_policy.value, "days", 7)
+      enabled = lookup(retention_policy.value, "enabled", true)
+    }
+  }
 
+  dynamic "trust_policy" {
+    for_each = var.enable_content_trust ? [1] : []
+    content {
+      enabled = var.enable_content_trust
+    }
+  }
+
+  identity {
+    type         = var.identity_ids != null ? "SystemAssigned, UserAssigned" : "SystemAssigned"
+    identity_ids = var.identity_ids
+  }
+
+  dynamic "encryption" {
+    for_each = var.encryption != null ? [var.encryption] : []
+    content {
+      enabled            = true
+      key_vault_key_id   = encryption.value.key_vault_key_id
+      identity_client_id = encryption.value.identity_client_id
+    }
+  }
+}
 
