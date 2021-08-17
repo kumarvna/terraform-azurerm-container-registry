@@ -41,23 +41,33 @@ resource "azurerm_container_registry" "main" {
     content {
       location                = georeplications.value.location
       zone_redundancy_enabled = georeplications.value.zone_redundancy_enabled
-      tags                    = merge({ "Name" = format("%s", "georeplications") }, var.tags, )
+      tags                    = merge({ "Name" = format("%s", "georep-${georeplications.value.location}") }, var.tags, )
     }
   }
 
   dynamic "network_rule_set" {
-    for_each = var.container_registry_config.sku == "Premium" ? [var.network_rule_set] : []
+    for_each = var.network_rule_set != null ? [var.network_rule_set] : []
     content {
       default_action = lookup(network_rule_set.value, "default_action", "Allow")
-      ip_rule {
-        action   = "Allow"
-        ip_range = network_rule_set.value.ip_range
+
+      dynamic "ip_rule" {
+        for_each = network_rule_set.value.ip_rule
+        content {
+          action   = "Allow"
+          ip_range = ip_rule.value.ip_range
+        }
       }
-      virtual_network {
-        action    = "Allow"
-        subnet_id = network_rule_set.value.subnet_id
+
+      dynamic "virtual_network" {
+        for_each = network_rule_set.value.virtual_network
+        content {
+          action    = "Allow"
+          subnet_id = network_rule_set.value.subnet_id
+        }
       }
     }
   }
 
 }
+
+

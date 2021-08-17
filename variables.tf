@@ -14,6 +14,7 @@ variable "location" {
 }
 
 variable "container_registry_config" {
+  description = "Manages an Azure Container Registry"
   type = object({
     name                          = string
     admin_enabled                 = optional(bool)
@@ -22,36 +23,30 @@ variable "container_registry_config" {
     quarantine_policy_enabled     = optional(bool)
     zone_redundancy_enabled       = optional(bool)
   })
-  description = "Manages an Azure Container Registry"
-}
-/* 
-variable "georeplications" {
-  type = object({
-    location                = string
-    zone_redundancy_enabled = optional(bool)
-  })
-  description = "A list of Azure locations where the container registry should be geo-replicated"
-  default     = null
+
 }
 
- */
- variable "georeplications" {
+variable "georeplications" {
+  description = "A list of Azure locations where the container registry should be geo-replicated"
   type = list(object({
     location                = string
     zone_redundancy_enabled = optional(bool)
   }))
-  description = "A list of Azure locations where the container registry should be geo-replicated"
-  default     = []
+  default = []
 }
 
-variable "network_rule_set" {
+variable "network_rule_set" { # change this to match actual objects
+  description = "Manage network rules for Azure Container Registries"
   type = object({
     default_action = optional(string)
-    ip_range       = list(string)
-    subnet_id      = list(string)
+    ip_rule = list(object({
+      ip_range = string
+    }))
+    virtual_network = list(object({
+      subnet_id = string
+    }))
   })
-  description = "Manage network rules for Azure Container Registries"
-  default     = null
+  default = null
 }
 
 variable "tags" {

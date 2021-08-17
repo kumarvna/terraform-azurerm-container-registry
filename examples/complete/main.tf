@@ -12,6 +12,7 @@ module "container-registry" {
   # proivde a name to use an existing resource group, specify the existing resource group name, 
   # set the argument to `create_resource_group = true` to create new resrouce group.
   resource_group_name = "rg-shared-westeurope-01"
+  location            = "westeurope"
 
 
   container_registry_config = {
@@ -22,11 +23,15 @@ module "container-registry" {
 
   georeplications = [
     {
-    location                = "northeurope"
-    zone_redundancy_enabled = true
+      location                = "northeurope"
+      zone_redundancy_enabled = true
     },
     {
-      location                = "norwayeast"
+      location                = "francecentral"
+      zone_redundancy_enabled = true
+    },
+    {
+      location                = "uksouth"
       zone_redundancy_enabled = true
     }
   ]
