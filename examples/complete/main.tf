@@ -87,6 +87,18 @@ module "container-registry" {
     }
   }
 
+  # Creating Private Endpoint requires, VNet name and address prefix to create a subnet
+  # By default this will create a `privatelink.mysql.database.azure.com` DNS zone. 
+  # To use existing private DNS zone specify `existing_private_dns_zone` with valid zone name
+  enable_private_endpoint       = true
+  virtual_network_name          = "vnet-shared-hub-westeurope-001"
+  private_subnet_address_prefix = ["10.1.5.0/27"]
+  #  existing_private_dns_zone     = "demo.example.com"
+
+  # (Optional) To enable Azure Monitoring for Azure MySQL database
+  # (Optional) Specify `storage_account_name` to save monitoring logs to storage. 
+  #log_analytics_workspace_name = "loganalytics-we-sharedtest2"
+
   # Adding TAG's to your Azure resources 
   tags = {
     ProjectName  = "demo-internal"

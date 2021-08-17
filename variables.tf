@@ -102,6 +102,26 @@ variable "container_registry_webhook" {
   default = null
 }
 
+variable "enable_private_endpoint" {
+  description = "Manages a Private Endpoint to Azure Container Registry"
+  default     = false
+}
+
+variable "virtual_network_name" {
+  description = "The name of the virtual network"
+  default     = ""
+}
+
+variable "existing_private_dns_zone" {
+  description = "Name of the existing private DNS zone"
+  default     = null
+}
+
+variable "private_subnet_address_prefix" {
+  description = "The name of the subnet for private endpoints"
+  default     = null
+}
+
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)

@@ -138,3 +138,72 @@ resource "azurerm_container_registry_webhook" "main" {
   custom_headers      = var.container_registry_webhook.custom_headers
 }
 
+#---------------------------------------------------------
+# Private Link for Container Registry - Default is "false" 
+#---------------------------------------------------------
+data "azurerm_virtual_network" "vnet01" {
+  count               = var.enable_private_endpoint ? 1 : 0
+  name                = var.virtual_network_name
+  resource_group_name = local.resource_group_name
+}
+
+resource "azurerm_subnet" "snet-ep" {
+  count                                          = var.enable_private_endpoint ? 1 : 0
+  name                                           = "snet-private-endpoint-shared-${local.location}"
+  resource_group_name                            = local.resource_group_name
+  virtual_network_name                           = data.azurerm_virtual_network.vnet01.0.name
+  address_prefixes                               = var.private_subnet_address_prefix
+  enforce_private_link_endpoint_network_policies = true
+}
+
+resource "azurerm_private_endpoint" "pep1" {
+  count               = var.enable_private_endpoint ? 1 : 0
+  name                = format("%s-private-endpoint", var.container_registry_config.name)
+  location            = local.location
+  resource_group_name = local.resource_group_name
+  subnet_id           = azurerm_subnet.snet-ep.0.id
+  tags                = merge({ "Name" = format("%s-private-endpoint", var.container_registry_config.name) }, var.tags, )
+
+  private_service_connection {
+    name                           = "containerregistryprivatelink"
+    is_manual_connection           = false
+    private_connection_resource_id = azurerm_container_registry.main.id
+    subresource_names              = ["registry"]
+  }
+}
+
+data "azurerm_private_endpoint_connection" "private-ip1" {
+  count               = var.enable_private_endpoint ? 1 : 0
+  name                = azurerm_private_endpoint.pep1.0.name
+  resource_group_name = local.resource_group_name
+  depends_on          = [azurerm_container_registry.main]
+}
+
+resource "azurerm_private_dns_zone" "dnszone1" {
+  count               = var.existing_private_dns_zone == null && var.enable_private_endpoint ? 1 : 0
+  name                = "privatelink.azurecr.io"
+  resource_group_name = local.resource_group_name
+  tags                = merge({ "Name" = format("%s", "Azure-Container-Registry-Private-DNS-Zone") }, var.tags, )
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "vent-link1" {
+  count                 = var.existing_private_dns_zone == null && var.enable_private_endpoint ? 1 : 0
+  name                  = "vnet-private-zone-link"
+  resource_group_name   = local.resource_group_name
+  private_dns_zone_name = azurerm_private_dns_zone.dnszone1.0.name
+  virtual_network_id    = data.azurerm_virtual_network.vnet01.0.id
+  tags                  = merge({ "Name" = format("%s", "vnet-private-zone-link") }, var.tags, )
+}
+
+/* 
+resource "azurerm_private_dns_a_record" "arecord1" {
+  count               = var.enable_private_endpoint ? length(flatten(azurerm_private_endpoint.pep1.0.custom_dns_configs.*.fqdn)) : 0
+  name                = substr(element(flatten(azurerm_private_endpoint.pep1.0.custom_dns_configs.*.fqdn), count.index), 0, -11)
+  zone_name           = var.existing_private_dns_zone == null ? azurerm_private_dns_zone.dnszone1.0.name : var.existing_private_dns_zone
+  resource_group_name = local.resource_group_name
+  ttl                 = 300
+  records             = [element(flatten(azurerm_private_endpoint.pep1.0.custom_dns_configs.*.ip_addresses), count.index)] #[data.azurerm_private_endpoint_connection.private-ip1.0.private_service_connection.0.private_ip_address]
+  depends_on          = [azurerm_container_registry.main, azurerm_private_endpoint.pep1, azurerm_private_dns_zone.dnszone1]
+}
+ */
+
