@@ -98,3 +98,43 @@ resource "azurerm_container_registry" "main" {
   }
 }
 
+#------------------------------------------------------------
+# Container Registry Resoruce Scope map - Default is "false"
+#------------------------------------------------------------
+
+resource "azurerm_container_registry_scope_map" "main" {
+  count                   = var.scope_map != null ? 1 : 0
+  name                    = format("%s", var.scope_map.name)
+  resource_group_name     = local.resource_group_name
+  container_registry_name = azurerm_container_registry.main.name
+  actions                 = var.scope_map.actions
+}
+
+#------------------------------------------------------------
+# Container Registry Token  - Default is "false"
+#------------------------------------------------------------
+resource "azurerm_container_registry_token" "main" {
+  count                   = var.scope_map != null && var.create_container_registry_token ? 1 : 0
+  name                    = format("%s", "${var.container_registry_config.name}-token")
+  resource_group_name     = local.resource_group_name
+  container_registry_name = azurerm_container_registry.main.name
+  scope_map_id            = azurerm_container_registry_scope_map.main.0.id
+  enabled                 = var.create_container_registry_token
+}
+
+#------------------------------------------------------------
+# Container Registry webhook - Default is "true"
+#------------------------------------------------------------
+resource "azurerm_container_registry_webhook" "main" {
+  count               = var.container_registry_webhook != null ? 1 : 0
+  name                = format("%s", "${var.container_registry_config.name}webhook")
+  resource_group_name = local.resource_group_name
+  location            = local.location
+  registry_name       = azurerm_container_registry.main.name
+  service_uri         = var.container_registry_webhook.service_uri
+  actions             = var.container_registry_webhook.actions
+  status              = var.container_registry_webhook.status
+  scope               = var.container_registry_webhook.scope
+  custom_headers      = var.container_registry_webhook.custom_headers
+}
+

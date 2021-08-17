@@ -23,7 +23,6 @@ variable "container_registry_config" {
     quarantine_policy_enabled     = optional(bool)
     zone_redundancy_enabled       = optional(bool)
   })
-
 }
 
 variable "georeplications" {
@@ -73,6 +72,32 @@ variable "encryption" {
   type = object({
     key_vault_key_id   = string
     identity_client_id = string
+  })
+  default = null
+}
+
+variable "scope_map" {
+  description = "Manages an Azure Container Registry scope map. Scope Maps are a preview feature only available in Premium SKU Container registries."
+  type = object({
+    name    = string
+    actions = list(string)
+  })
+  default = null
+}
+
+variable "create_container_registry_token" {
+  description = "Should the Container Registry token be enabled? Defaults to true"
+  default     = false
+}
+
+variable "container_registry_webhook" {
+  description = "Manages an Azure Container Registry Webhook"
+  type = object({
+    service_uri    = string
+    actions        = list(string)
+    status         = optional(string)
+    scope          = string
+    custom_headers = map(string)
   })
   default = null
 }
