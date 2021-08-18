@@ -122,9 +122,23 @@ variable "private_subnet_address_prefix" {
   default     = null
 }
 
+variable "log_analytics_workspace_name" {
+  description = "The name of log analytics workspace name"
+  default     = null
+}
+
+variable "storage_account_name" {
+  description = "The name of the hub storage account to store logs"
+  default     = null
+}
+
+variable "acr_diag_logs" {
+  description = "Application Gateway Monitoring Category details for Azure Diagnostic setting"
+  default     = ["ContainerRegistryRepositoryEvents", "ContainerRegistryLoginEvents"]
+}
+
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
   default     = {}
 }
-

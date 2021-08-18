@@ -21,6 +21,18 @@ resource "azurerm_resource_group" "rg" {
   tags     = merge({ "ResourceName" = format("%s", var.resource_group_name) }, var.tags, )
 }
 
+data "azurerm_log_analytics_workspace" "logws" {
+  count               = var.log_analytics_workspace_name != null ? 1 : 0
+  name                = var.log_analytics_workspace_name
+  resource_group_name = local.resource_group_name
+}
+
+data "azurerm_storage_account" "storeacc" {
+  count               = var.storage_account_name != null ? 1 : 0
+  name                = var.storage_account_name
+  resource_group_name = local.resource_group_name
+}
+
 #---------------------------------------------------------
 # Container Registry Resoruce - Default is "true"
 #----------------------------------------------------------
@@ -196,4 +208,41 @@ resource "azurerm_private_dns_zone_virtual_network_link" "vent-link1" {
   virtual_network_id    = data.azurerm_virtual_network.vnet01.0.id
   registration_enabled  = true
   tags                  = merge({ "Name" = format("%s", "vnet-private-zone-link") }, var.tags, )
+}
+
+#---------------------------------------------------------------
+# azurerm monitoring diagnostics for Container Registry
+#---------------------------------------------------------------
+resource "azurerm_monitor_diagnostic_setting" "acr-diag" {
+  count                      = var.log_analytics_workspace_name != null || var.storage_account_name != null ? 1 : 0
+  name                       = lower("acr-${var.container_registry_config.name}-diag")
+  target_resource_id         = azurerm_container_registry.main.id
+  storage_account_id         = var.storage_account_name != null ? data.azurerm_storage_account.storeacc.0.id : null
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.logws.0.id
+
+  dynamic "log" {
+    for_each = var.acr_diag_logs
+    content {
+      category = log.value
+      enabled  = true
+
+      retention_policy {
+        enabled = false
+        days    = 0
+      }
+    }
+  }
+
+  metric {
+    category = "AllMetrics"
+
+    retention_policy {
+      enabled = false
+      days    = 0
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [log, metric]
+  }
 }

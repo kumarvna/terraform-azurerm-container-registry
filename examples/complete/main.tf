@@ -97,7 +97,7 @@ module "container-registry" {
 
   # (Optional) To enable Azure Monitoring for Azure MySQL database
   # (Optional) Specify `storage_account_name` to save monitoring logs to storage. 
-  #log_analytics_workspace_name = "loganalytics-we-sharedtest2"
+  log_analytics_workspace_name = "loganalytics-we-sharedtest2"
 
   # Adding TAG's to your Azure resources 
   tags = {
