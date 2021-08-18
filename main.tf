@@ -115,23 +115,23 @@ resource "azurerm_container_registry" "main" {
 #------------------------------------------------------------
 
 resource "azurerm_container_registry_scope_map" "main" {
-  count                   = var.scope_map != null ? 1 : 0
-  name                    = format("%s", var.scope_map.name)
+  for_each                = var.scope_map != null ? { for k, v in var.scope_map : k => v if v != null } : {}
+  name                    = format("%s", each.key)
   resource_group_name     = local.resource_group_name
   container_registry_name = azurerm_container_registry.main.name
-  actions                 = var.scope_map.actions
+  actions                 = each.value["actions"]
 }
 
 #------------------------------------------------------------
 # Container Registry Token  - Default is "false"
 #------------------------------------------------------------
 resource "azurerm_container_registry_token" "main" {
-  count                   = var.scope_map != null && var.create_container_registry_token ? 1 : 0
-  name                    = format("%s", "${var.container_registry_config.name}-token")
+  for_each                = var.scope_map != null ? { for k, v in var.scope_map : k => v if v != null } : {}
+  name                    = format("%s", "${each.key}-token")
   resource_group_name     = local.resource_group_name
   container_registry_name = azurerm_container_registry.main.name
-  scope_map_id            = azurerm_container_registry_scope_map.main.0.id
-  enabled                 = var.create_container_registry_token
+  scope_map_id            = element([for k in azurerm_container_registry_scope_map.main : k.id], 0)
+  enabled                 = true
 }
 
 #------------------------------------------------------------

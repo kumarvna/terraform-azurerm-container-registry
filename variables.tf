@@ -78,16 +78,10 @@ variable "encryption" {
 
 variable "scope_map" {
   description = "Manages an Azure Container Registry scope map. Scope Maps are a preview feature only available in Premium SKU Container registries."
-  type = object({
-    name    = string
+  type = map(object({
     actions = list(string)
-  })
+  }))
   default = null
-}
-
-variable "create_container_registry_token" {
-  description = "Should the Container Registry token be enabled? Defaults to true"
-  default     = false
 }
 
 variable "container_registry_webhooks" {
