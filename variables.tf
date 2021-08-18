@@ -90,15 +90,15 @@ variable "create_container_registry_token" {
   default     = false
 }
 
-variable "container_registry_webhook" {
+variable "container_registry_webhooks" {
   description = "Manages an Azure Container Registry Webhook"
-  type = object({
+  type = map(object({
     service_uri    = string
     actions        = list(string)
     status         = optional(string)
     scope          = string
     custom_headers = map(string)
-  })
+  }))
   default = null
 }
 

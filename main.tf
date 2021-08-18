@@ -138,16 +138,16 @@ resource "azurerm_container_registry_token" "main" {
 # Container Registry webhook - Default is "true"
 #------------------------------------------------------------
 resource "azurerm_container_registry_webhook" "main" {
-  count               = var.container_registry_webhook != null ? 1 : 0
-  name                = format("%s", "${var.container_registry_config.name}webhook")
+  for_each            = var.container_registry_webhooks != null ? { for k, v in var.container_registry_webhooks : k => v if v != null } : {}
+  name                = format("%s", each.key)
   resource_group_name = local.resource_group_name
   location            = local.location
   registry_name       = azurerm_container_registry.main.name
-  service_uri         = var.container_registry_webhook.service_uri
-  actions             = var.container_registry_webhook.actions
-  status              = var.container_registry_webhook.status
-  scope               = var.container_registry_webhook.scope
-  custom_headers      = var.container_registry_webhook.custom_headers
+  service_uri         = each.value["service_uri"]
+  actions             = each.value["actions"]
+  status              = each.value["status"]
+  scope               = each.value["scope"]
+  custom_headers      = each.value["custom_headers"]
   lifecycle {
     ignore_changes = [
       tags

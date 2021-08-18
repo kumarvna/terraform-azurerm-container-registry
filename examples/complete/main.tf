@@ -14,13 +14,16 @@ module "container-registry" {
   resource_group_name = "rg-shared-westeurope-01"
   location            = "westeurope"
 
-
+  # Azure Container Registry configuration
+  # The `Classic` SKU is Deprecated and will no longer be available for new resources
   container_registry_config = {
     name          = "containerregistrydemoproject01"
     admin_enabled = true
     sku           = "Premium"
   }
 
+  # The georeplications is only supported on new resources with the Premium SKU.
+  # The georeplications list cannot contain the location where the Container Registry exists.
   georeplications = [
     {
       location                = "northeurope"
@@ -36,24 +39,6 @@ module "container-registry" {
     }
   ]
 
-  #  Add `Microsoft.ContainerRegistry` to subnet's ServiceEndpoints collection before adding specific subnets
-  /*   network_rule_set = {
-    default_action = "Deny"
-    ip_rule = [
-      {
-        ip_range = "49.204.225.49/32"
-      },
-    ]
-    virtual_network = [
-      {
-        subnet_id = "/subscriptions/1e3f0eeb-2235-44cd-b3a3-dcded0861d06/resourceGroups/rg-shared-westeurope-01/providers/Microsoft.Network/virtualNetworks/vnet-shared-hub-westeurope-001/subnets/snet-appgateway"
-      },
-      {
-        subnet_id = "/subscriptions/1e3f0eeb-2235-44cd-b3a3-dcded0861d06/resourceGroups/rg-shared-westeurope-01/providers/Microsoft.Network/virtualNetworks/vnet-shared-hub-westeurope-001/subnets/snet-management"
-      }
-    ]
-  } */
-
   # Set a retention policy with care--deleted image data is UNRECOVERABLE.
   # A retention policy for untagged manifests is currently a preview feature of Premium container registries
   retention_policy = {
@@ -64,29 +49,28 @@ module "container-registry" {
   # Content trust is a feature of the Premium service tier of Azure Container Registry.
   enable_content_trust = true
 
-  # Create a token with repository-scoped permissions
-  # To configure repository-scoped permissions, need to create a token with an associated scope map
-  # This feature is available in the Premium container registry service tier
-  /* scope_map = {
-    name = "example-scope-map"
-    actions = [
-      "repositories/repo1/read",
-      "repositories/repo1/create"
-    ]
-  }
-   */
-  create_container_registry_token = true
-
-  container_registry_webhook = {
-    service_uri = "https://mywebhookreceiver.example/mytag"
-    status      = "enabled"
-    scope       = "mytag:*"
-    actions     = ["push"]
-    custom_headers = {
-      "Content-Type" = "application/json"
+  # Using Azure Container Registry webhooks
+  # The endpoint for a webhook must be publicly accessible from the registry. 
+  container_registry_webhooks = {
+    webhook1 = {
+      service_uri = "https://mywebhookreceiver.example/mytag"
+      status      = "enabled"
+      scope       = "mytag:*"
+      actions     = ["push"]
+      custom_headers = {
+        "Content-Type" = "application/json"
+      }
+    },
+    webhook2 = {
+      service_uri = "https://mywebhookreceiver.example/app1"
+      status      = "enabled"
+      scope       = "app1:*"
+      actions     = ["push"]
+      custom_headers = {
+        "Content-Type" = "application/json"
+      }
     }
   }
-
   # Creating Private Endpoint requires, VNet name and address prefix to create a subnet
   # By default this will create a `privatelink.mysql.database.azure.com` DNS zone. 
   # To use existing private DNS zone specify `existing_private_dns_zone` with valid zone name
