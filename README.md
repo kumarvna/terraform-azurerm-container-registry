@@ -4,6 +4,18 @@ The Azure container registry is Microsoft's hosting platform for Docker images. 
 
 This Terraform module helps create Azure Container Registry with optional scope-map, token, webhook, Network ACLs, encryption and Private endpoints.
 
+## Resources supported
+
+- [Container Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry)
+- [Container Registry Encryption with Customer Managed Key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry#encryption)
+- [Container Registry Georeplications](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry#georeplications)
+- [Container Registry Token](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry_token) [with repository-scoped permissions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry_scope_map)
+- [retention policy for untagged manifests](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry#retention_policy)
+- [Content trust in Azure Container Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry#trust_policy)
+- [Container Registry Webhooks](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry_webhook)
+- [Restrict access using a service endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry#network_rule_set)
+- [Private Endpoints - Private Link to Azure Contaner Registry](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-private-link)
+
 ## Module Usage
 
 ```terraform
@@ -47,49 +59,6 @@ module "container-registry" {
     }
   ]
 
-  # Set a retention policy with care--deleted image data is UNRECOVERABLE.
-  # A retention policy is currently in preview feature of Premium container registries
-  retention_policy = {
-    days    = 10
-    enabled = true
-  }
-
-  # Content trust is a feature of the Premium service tier of Azure Container Registry.
-  enable_content_trust = true
-
-  # Create a token with repository-scoped permissions
-  # To configure repository-scoped permissions, need to create a token with an associated scope map
-  # This feature is available in the Premium container registry service tier
-  scope_map = {
-    name = "example-scope-map"
-    actions = [
-      "repositories/repo1/read",
-      "repositories/repo1/create"
-    ]
-  }
-
-  create_container_registry_token = true
-
-  # Using Azure Container Registry webhooks
-  # The endpoint for a webhook must be publicly accessible from the registry. 
-  container_registry_webhook = {
-    service_uri = "https://mywebhookreceiver.example/mytag"
-    status      = "enabled"
-    scope       = "mytag:*"
-    actions     = ["push"]
-    custom_headers = {
-      "Content-Type" = "application/json"
-    }
-  }
-
-  # Creating Private Endpoint requires, VNet name and address prefix to create a subnet
-  # By default this will create a `privatelink.mysql.database.azure.com` DNS zone. 
-  # To use existing private DNS zone specify `existing_private_dns_zone` with valid zone name
-  enable_private_endpoint       = true
-  virtual_network_name          = "vnet-shared-hub-westeurope-001"
-  private_subnet_address_prefix = ["10.1.5.0/27"]
-  #  existing_private_dns_zone     = "demo.example.com"
-
   # (Optional) To enable Azure Monitoring for Azure MySQL database
   # (Optional) Specify `storage_account_name` to save monitoring logs to storage. 
   log_analytics_workspace_name = "loganalytics-we-sharedtest2"
@@ -104,6 +73,14 @@ module "container-registry" {
   }
 }
 ```
+
+## Module Usage examples for
+
+- [Hdinsight Hadoop Cluster](examples/hdinsight_hadoop_cluster/README.md)
+- [Hdinsight HBase Cluster](examples/hdinsight_hbase_cluster/README.md)
+- [Hdinsight Interactive Query Cluster](examples/hdinsight_interactive_query_cluster/README.md)
+- [Hdinsight Kafka Cluster](examples/hdinsight_kafka_cluster/README.md)
+- [Hdinsight Spark Cluster](examples/hdinsight_spark_cluster/README.md)
 
 ## Advanced Usage of the Module
 
@@ -316,6 +293,7 @@ By default, this feature not enabled on this module. To create private link with
 For more details: [Connect privately to an Azure container registry using Azure Private Link](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-private-link)
 
 > [!IMPORTANT]
+>
 > Some functionality may be unavailable or require more configuration in a container registry that restricts access to private endpoints, selected subnets, or IP addresses.
 >
 > - When public network access to a registry is disabled, registry access by certain trusted services including Azure Security Center requires enabling a network setting to bypass the network rules.
@@ -345,7 +323,7 @@ An effective naming convention assembles resource names by using important resou
 | Name | Version |
 |------|---------|
 | azurerm | >= 2.59.0 |
-| random |>= 3.1.0 |
+
 
 ## Inputs
 

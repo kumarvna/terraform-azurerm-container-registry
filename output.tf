@@ -69,7 +69,7 @@ output "container_registry_private_dns_zone_domain" {
   value       = var.existing_private_dns_zone == null && var.enable_private_endpoint ? element(concat(azurerm_private_dns_zone.dnszone1.*.name, [""]), 0) : var.existing_private_dns_zone
 }
 
-output "container_registry_private_endpoint_ip" {
+output "container_registry_private_endpoint_ip_addresses" {
   description = "Azure Container Registry private endpoint IPv4 Addresses "
   value       = var.enable_private_endpoint ? flatten(azurerm_private_endpoint.pep1.0.custom_dns_configs.*.ip_addresses) : null
 }

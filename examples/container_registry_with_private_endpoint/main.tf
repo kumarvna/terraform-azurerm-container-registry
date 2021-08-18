@@ -4,8 +4,9 @@ provider "azurerm" {
 }
 
 module "container-registry" {
-  source  = "kumarvna/container-registry/azurerm"
-  version = "1.0.0"
+ // source  = "kumarvna/container-registry/azurerm"
+ // version = "1.0.0"
+ source = "../../"
 
   # By default, this module will not create a resource group. Location will be same as existing RG.
   # proivde a name to use an existing resource group, specify the existing resource group name, 
@@ -52,7 +53,7 @@ module "container-registry" {
   # Creating Private Endpoint requires, VNet name and address prefix to create a subnet
   # By default this will create a `privatelink.mysql.database.azure.com` DNS zone. 
   # To use existing private DNS zone specify `existing_private_dns_zone` with valid zone name
-  enable_private_endpoint       = false
+  enable_private_endpoint       = true
   virtual_network_name          = "vnet-shared-hub-westeurope-001"
   private_subnet_address_prefix = ["10.1.5.0/27"]
   #  existing_private_dns_zone     = "demo.example.com"
