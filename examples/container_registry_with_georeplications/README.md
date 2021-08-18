@@ -4,7 +4,7 @@ The Azure container registry is Microsoft's hosting platform for Docker images. 
 
 This Terraform module helps create Azure Container Registry with optional scope-map, token, webhook, Network ACLs, encryption and Private endpoints.
 
-## Module Usage to create simple Container Registry with Georeplications
+## Module Usage to create Container Registry with Georeplications
 
 ```terraform
 # Azurerm Provider configuration

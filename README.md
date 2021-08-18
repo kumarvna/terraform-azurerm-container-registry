@@ -10,7 +10,7 @@ This Terraform module helps create Azure Container Registry with optional scope-
 - [Container Registry Encryption with Customer Managed Key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry#encryption)
 - [Container Registry Georeplications](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry#georeplications)
 - [Container Registry Token](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry_token) [with repository-scoped permissions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry_scope_map)
-- [retention policy for untagged manifests](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry#retention_policy)
+- [Retention policy for untagged manifests](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry#retention_policy)
 - [Content trust in Azure Container Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry#trust_policy)
 - [Container Registry Webhooks](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry_webhook)
 - [Restrict access using a service endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry#network_rule_set)
@@ -76,11 +76,9 @@ module "container-registry" {
 
 ## Module Usage examples for
 
-- [Hdinsight Hadoop Cluster](examples/hdinsight_hadoop_cluster/README.md)
-- [Hdinsight HBase Cluster](examples/hdinsight_hbase_cluster/README.md)
-- [Hdinsight Interactive Query Cluster](examples/hdinsight_interactive_query_cluster/README.md)
-- [Hdinsight Kafka Cluster](examples/hdinsight_kafka_cluster/README.md)
-- [Hdinsight Spark Cluster](examples/hdinsight_spark_cluster/README.md)
+- [Container Registry with Georeplications](examples/container_registry_with_georeplications/README.md)
+- [Container Registry with Encryption](examples/container_registry_with_encryption/README.md)
+- [Container Registry with Private Endpoint and other optinal resources](examples/container_registry_with_private_endpoint/README.md)
 
 ## Advanced Usage of the Module
 
@@ -324,7 +322,6 @@ An effective naming convention assembles resource names by using important resou
 |------|---------|
 | azurerm | >= 2.59.0 |
 
-
 ## Inputs
 
 | Name | Description | Type | Default |
@@ -332,6 +329,15 @@ An effective naming convention assembles resource names by using important resou
 `create_resource_group` | Whether to create resource group and use it for all networking resources | string | `"false"`
 `resource_group_name` | The name of the resource group in which resources are created | string | `""`
 `location` | The location of the resource group in which resources are created | string | `""`
+`container_registry_config`|Manages an Azure Container Registry|object({})|`{}`
+`georeplications`|A list of Azure locations where the container registry should be geo-replicated|list(object({}))|`[]`
+`network_rule_set`|Manage network rules for Azure Container Registries|object({})|`null`
+`retention_policy`|Set a retention policy for untagged manifests|object({})|`null`
+`enable_content_trust`|Boolean value to enable or disable Content trust in Azure Container Registry|string|`false`
+`identity_ids`|Specifies a list of user managed identity ids to be assigned. This is required when `type` is set to `UserAssigned` or `SystemAssigned, UserAssigned`|string|`null`
+`encryption`|Encrypt registry using a customer-managed key|object({})|`null`
+`scope_map`|Manages an Azure Container Registry scope map. Scope Maps are a preview feature only available in Premium SKU Container registries.|map(object({}))|`null`
+`container_registry_webhooks`|Manages an Azure Container Registry Webhook|map(object({}))|`null`
 `log_analytics_workspace_name`|The name of log analytics workspace name|string|`null`
 `storage_account_name`|The name of the storage account name|string|`null`
 `enable_private_endpoint`|Azure Private Endpoint is a network interface that connects you privately and securely to a service powered by Azure Private Link|string|`"false"`
@@ -346,6 +352,20 @@ An effective naming convention assembles resource names by using important resou
 |--|--|
 `resource_group_name`|The name of the resource group in which resources are created
 `resource_group_location`|The location of the resource group in which resources are created
+`resource_group_id`|The id of the resource group in which resources are created
+`container_registry_id`|The ID of the Container Registry
+`container_registry_login_server`|The URL that can be used to log into the container registry
+`container_registry_admin_username`|The Username associated with the Container Registry Admin account - if the admin account is enabled
+`container_registry_admin_password`|The Username associated with the Container Registry Admin account - if the admin account is enabled
+`container_registry_identity_principal_id`|The Principal ID for the Service Principal associated with the Managed Service Identity of this Container Registry
+`container_registry_identity_tenant_id`|The Tenant ID for the Service Principal associated with the Managed Service Identity of this Container Registry
+`container_registry_scope_map_id`|The ID of the Container Registry scope map
+`container_registry_token_id`|The ID of the Container Registry token
+`container_registry_webhook_id`|The ID of the Container Registry Webhook
+container_registry_private_endpoint|The ID of the Azure Container Registry Private Endpoint
+`container_registry_private_dns_zone_domain`|DNS zone name of Azure Container Registry Private endpoints dns name records
+`container_registry_private_endpoint_ip_addresses`|Azure Container Registry private endpoint IPv4 Addresses
+`container_registry_private_endpoint_fqdn`|Azure Container Registry private endpoint FQDN Addresses
 
 ## Resource Graph
 
@@ -357,5 +377,5 @@ Originally created by [Kumaraswamy Vithanala](mailto:kumarvna@gmail.com)
 
 ## Other resources
 
-- [Azure database for MariaDB](https://docs.microsoft.com/en-us/azure/mariadb/)
+- [Azure Container Registry](https://docs.microsoft.com/en-us/azure/container-registry/)
 - [Terraform AzureRM Provider Documentation](https://www.terraform.io/docs/providers/azurerm/index.html)

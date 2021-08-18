@@ -60,7 +60,7 @@ output "container_registry_webhook_id" {
 }
 
 output "container_registry_private_endpoint" {
-  description = "id of the Azure Container Registry Private Endpoint"
+  description = "The ID of the Azure Container Registry Private Endpoint"
   value       = var.enable_private_endpoint ? element(concat(azurerm_private_endpoint.pep1.*.id, [""]), 0) : null
 }
 
@@ -70,11 +70,11 @@ output "container_registry_private_dns_zone_domain" {
 }
 
 output "container_registry_private_endpoint_ip_addresses" {
-  description = "Azure Container Registry private endpoint IPv4 Addresses "
+  description = "Azure Container Registry private endpoint IPv4 Addresses"
   value       = var.enable_private_endpoint ? flatten(azurerm_private_endpoint.pep1.0.custom_dns_configs.*.ip_addresses) : null
 }
 
 output "container_registry_private_endpoint_fqdn" {
-  description = "Azure Container Registry private endpoint FQDN Addresses "
+  description = "Azure Container Registry private endpoint FQDN Addresses"
   value       = var.enable_private_endpoint ? flatten(azurerm_private_endpoint.pep1.0.custom_dns_configs.*.fqdn) : null
 }
