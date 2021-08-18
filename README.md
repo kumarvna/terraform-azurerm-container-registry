@@ -48,7 +48,7 @@ module "container-registry" {
   ]
 
   # Set a retention policy with care--deleted image data is UNRECOVERABLE.
-  # A retention policy for untagged manifests is currently a preview feature of Premium container registries
+  # A retention policy is currently in preview feature of Premium container registries
   retention_policy = {
     days    = 10
     enabled = true
