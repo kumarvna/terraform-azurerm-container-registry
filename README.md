@@ -114,7 +114,6 @@ Azure Virtual Network provides secure, private networking for your Azure and on-
 Add following to module configuration with a valid IP range and Subnet ids to implement network ACL's. Add `Microsoft.ContainerRegistry` to subnet's ServiceEndpoints collection before adding specific subnets.
 
 ```terraform
-```terraform
 # Azurerm Provider configuration
 provider "azurerm" {
   features {}
@@ -158,7 +157,6 @@ By creating tokens, a registry owner can provide users or services with scoped, 
 > - You can't create a scope map in a registry enabled for anonymous pull access.
 
 ```terraform
-```terraform
 # Azurerm Provider configuration
 provider "azurerm" {
   features {}
@@ -196,7 +194,6 @@ An Azure container registry stores and manages private Docker container images, 
 
 The endpoint for a webhook must be publicly accessible from the registry. You can configure registry webhook requests to authenticate to a secured endpoint. This module support webhooks creation using following object map.
 
-```terraform
 ```terraform
 # Azurerm Provider configuration
 provider "azurerm" {
