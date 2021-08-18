@@ -76,9 +76,9 @@ module "container-registry" {
 
 ## Module Usage examples for
 
-- [Container Registry with Georeplications](examples/container_registry_with_georeplications/README.md)
-- [Container Registry with Encryption](examples/container_registry_with_encryption/README.md)
-- [Container Registry with Private Endpoint and other optinal resources](examples/container_registry_with_private_endpoint/README.md)
+- [Container Registry with Georeplications](examples/container_registry_with_georeplications/)
+- [Container Registry with Encryption](examples/container_registry_with_encryption/)
+- [Container Registry with Private Endpoint and other optinal resources](examples/container_registry_with_private_endpoint/)
 
 ## Advanced Usage of the Module
 

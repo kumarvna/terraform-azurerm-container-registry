@@ -6,9 +6,9 @@ This Terraform module helps create Azure Container Registry with optional scope-
 
 ## Module Usage examples for
 
-- [Container Registry with Georeplications](container_registry_with_georeplications/README.md)
-- [Container Registry with Encryption](container_registry_with_encryption/README.md)
-- [Container Registry with Private Endpoint and other optinal resources](container_registry_with_private_endpoint/README.md)
+- [Container Registry with Georeplications](container_registry_with_georeplications/)
+- [Container Registry with Encryption](container_registry_with_encryption/)
+- [Container Registry with Private Endpoint and other optinal resources](container_registry_with_private_endpoint/)
 
 ## Terraform Usage
 
