@@ -136,6 +136,11 @@ resource "azurerm_container_registry_webhook" "main" {
   status              = var.container_registry_webhook.status
   scope               = var.container_registry_webhook.scope
   custom_headers      = var.container_registry_webhook.custom_headers
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
 #---------------------------------------------------------
@@ -163,6 +168,10 @@ resource "azurerm_private_endpoint" "pep1" {
   resource_group_name = local.resource_group_name
   subnet_id           = azurerm_subnet.snet-ep.0.id
   tags                = merge({ "Name" = format("%s-private-endpoint", var.container_registry_config.name) }, var.tags, )
+  private_dns_zone_group {
+    name                 = "container-registry-group"
+    private_dns_zone_ids = [azurerm_private_dns_zone.dnszone1.0.id]
+  }
 
   private_service_connection {
     name                           = "containerregistryprivatelink"
@@ -170,13 +179,6 @@ resource "azurerm_private_endpoint" "pep1" {
     private_connection_resource_id = azurerm_container_registry.main.id
     subresource_names              = ["registry"]
   }
-}
-
-data "azurerm_private_endpoint_connection" "private-ip1" {
-  count               = var.enable_private_endpoint ? 1 : 0
-  name                = azurerm_private_endpoint.pep1.0.name
-  resource_group_name = local.resource_group_name
-  depends_on          = [azurerm_container_registry.main]
 }
 
 resource "azurerm_private_dns_zone" "dnszone1" {
@@ -192,18 +194,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "vent-link1" {
   resource_group_name   = local.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.dnszone1.0.name
   virtual_network_id    = data.azurerm_virtual_network.vnet01.0.id
+  registration_enabled  = true
   tags                  = merge({ "Name" = format("%s", "vnet-private-zone-link") }, var.tags, )
 }
-
-/* 
-resource "azurerm_private_dns_a_record" "arecord1" {
-  count               = var.enable_private_endpoint ? length(flatten(azurerm_private_endpoint.pep1.0.custom_dns_configs.*.fqdn)) : 0
-  name                = substr(element(flatten(azurerm_private_endpoint.pep1.0.custom_dns_configs.*.fqdn), count.index), 0, -11)
-  zone_name           = var.existing_private_dns_zone == null ? azurerm_private_dns_zone.dnszone1.0.name : var.existing_private_dns_zone
-  resource_group_name = local.resource_group_name
-  ttl                 = 300
-  records             = [element(flatten(azurerm_private_endpoint.pep1.0.custom_dns_configs.*.ip_addresses), count.index)] #[data.azurerm_private_endpoint_connection.private-ip1.0.private_service_connection.0.private_ip_address]
-  depends_on          = [azurerm_container_registry.main, azurerm_private_endpoint.pep1, azurerm_private_dns_zone.dnszone1]
-}
- */
-
