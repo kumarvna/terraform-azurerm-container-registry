@@ -170,7 +170,7 @@ resource "azurerm_subnet" "snet-ep" {
   resource_group_name                            = local.resource_group_name
   virtual_network_name                           = data.azurerm_virtual_network.vnet01.0.name
   address_prefixes                               = var.private_subnet_address_prefix
-  enforce_private_link_endpoint_network_policies = true
+  private_endpoint_network_policies_enabled      = true
 }
 
 resource "azurerm_private_endpoint" "pep1" {
@@ -225,21 +225,11 @@ resource "azurerm_monitor_diagnostic_setting" "acr-diag" {
     content {
       category = log.value
       enabled  = true
-
-      retention_policy {
-        enabled = false
-        days    = 0
-      }
     }
   }
 
   metric {
     category = "AllMetrics"
-
-    retention_policy {
-      enabled = false
-      days    = 0
-    }
   }
 
   lifecycle {
